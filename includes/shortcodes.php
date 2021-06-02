@@ -22,9 +22,7 @@ function wst_shortcode_people($user_atts = [], $content = null, $tag = '') {
 	// change all attribute keys to lowercase
 	$user_atts = array_change_key_case((array)$user_atts, CASE_LOWER);
 
-	$default_atts = [
-		'id' => null,
-	];
+	$default_atts = [];
 
 	$atts = shortcode_atts($default_atts, $user_atts, WST_SHORTCODE_TAG_PEOPLE);
 
@@ -39,10 +37,18 @@ function wst_shortcode_people($user_atts = [], $content = null, $tag = '') {
 	$body = wp_remote_retrieve_body($response);
 	$data = json_decode($body);
 
-	// $output .= "<pre>";
-	// $output .= print_r($data, true);
-	// $output .= "</pre>";
-	$output .= "There are {$data->count} people in the StarWars universe.";
+	$title = "People in the StarWars Universe";
+	$output .= sprintf("<h2>%s</h2>", $title);
+
+	if (count($data->results) > 0) {
+		$output .= "<ul>";
+		foreach ($data->results as $person) {
+			$output .= sprintf('<li>%s (birthyear: %s)</li>', $person->name, $person->birth_year);
+		}
+		$output .= "</ul>";
+	}
+
+	$output .= "<em>There are a total of {$data->count} people in the StarWars universe.</em>";
 
 	$output .= "<hr />";
 
