@@ -11,6 +11,7 @@
 
 define('WST_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WST_SHORTCODE_TAG_PEOPLE', 'starwars-people');
+define('WST_SHORTCODE_TAG_PERSON', 'starwars-person');
 
 /**
  * Include dependencies.
