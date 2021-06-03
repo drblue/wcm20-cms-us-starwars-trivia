@@ -29,27 +29,23 @@ function wst_shortcode_people($user_atts = [], $content = null, $tag = '') {
 
 	$output = "<hr />";
 
-	$response = wp_remote_get('https://swapi.dev/api/people/');
-
-	if (wp_remote_retrieve_response_code($response) !== 200) {
-		return $output . "<em>Error in StarWars API request, response code was not 200!</em>";
+	$res = swapi_get("https://swapi.dev/api/people/");
+	if (!$res['success']) {
+		return $output . "<em>{$res['message']}</em>";
 	}
-
-	$body = wp_remote_retrieve_body($response);
-	$data = json_decode($body);
 
 	$title = "People in the StarWars Universe";
 	$output .= sprintf("<h2>%s</h2>", $title);
 
-	if (count($data->results) > 0) {
+	if (count($res['data']->results) > 0) {
 		$output .= "<ul>";
-		foreach ($data->results as $person) {
+		foreach ($res['data']->results as $person) {
 			$output .= sprintf('<li>%s (birthyear: %s)</li>', $person->name, $person->birth_year);
 		}
 		$output .= "</ul>";
 	}
 
-	$output .= "<em>There are a total of {$data->count} people in the StarWars universe.</em>";
+	$output .= "<em>There are a total of {$res['data']->count} people in the StarWars universe.</em>";
 
 	$output .= "<hr />";
 
@@ -82,23 +78,19 @@ function wst_shortcode_person($user_atts = [], $content = null, $tag = '') {
 		return $output .= "<em>Please specify the ID attribute in shortcode starwars-person.</em>";
 	}
 
-	$response = wp_remote_get("https://swapi.dev/api/people/{$atts['id']}");
-
-	if (wp_remote_retrieve_response_code($response) !== 200) {
-		return $output . "<em>Error in StarWars API request, response code was not 200!</em>";
+	$res = swapi_get("https://swapi.dev/api/people/{$atts['id']}");
+	if (!$res['success']) {
+		return $output . "<em>{$res['message']}</em>";
 	}
 
-	$body = wp_remote_retrieve_body($response);
-	$data = json_decode($body);
-
-	$title = $data->name;
+	$title = $res['data']->name;
 	$output .= sprintf("<h2>%s</h2>", $title);
 
 	$output .= "<dl>";
-	$output .= sprintf('<dt>%s</dt><dd>%s cm</dd>', 'Height', $data->height);
-	$output .= sprintf('<dt>%s</dt><dd>%s kg</dd>', 'Mass', $data->mass);
-	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Birthyear', $data->birth_year);
-	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Films', count($data->films));
+	$output .= sprintf('<dt>%s</dt><dd>%s cm</dd>', 'Height', $res['data']->height);
+	$output .= sprintf('<dt>%s</dt><dd>%s kg</dd>', 'Mass', $res['data']->mass);
+	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Birthyear', $res['data']->birth_year);
+	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Films', count($res['data']->films));
 	$output .= "</dl>";
 
 	$output .= "<hr />";

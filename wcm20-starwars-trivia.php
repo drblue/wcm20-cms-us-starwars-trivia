@@ -18,3 +18,4 @@ define('WST_SHORTCODE_TAG_PERSON', 'starwars-person');
  */
 require_once(WST_PLUGIN_DIR . 'includes/functions.php');
 require_once(WST_PLUGIN_DIR . 'includes/shortcodes.php');
+require_once(WST_PLUGIN_DIR . 'includes/swapi.php');
