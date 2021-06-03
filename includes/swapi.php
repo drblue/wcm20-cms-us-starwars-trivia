@@ -29,6 +29,15 @@ function swapi_get($endpoint) {
 }
 
 /**
+ * Get films
+ *
+ * @return array
+ */
+function swapi_get_films() {
+	return swapi_get("films/");
+}
+
+/**
  * Get people
  *
  * @return array
