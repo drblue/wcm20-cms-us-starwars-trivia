@@ -3,8 +3,14 @@
  * Functions for communicating with The StarWars API
  */
 
-function swapi_get($url) {
-	$response = wp_remote_get($url);
+/**
+ * Get data from a SWAPI endpoint
+ *
+ * @param string $endpoint
+ * @return array
+ */
+function swapi_get($endpoint) {
+	$response = wp_remote_get("https://swapi.dev/api/{$endpoint}");
 
 	if (wp_remote_retrieve_response_code($response) !== 200) {
 		return [
@@ -20,4 +26,23 @@ function swapi_get($url) {
 		'success' => true,
 		'data' => $data,
 	];
+}
+
+/**
+ * Get people
+ *
+ * @return array
+ */
+function swapi_get_people() {
+	return swapi_get("people/");
+}
+
+/**
+ * Get person
+ *
+ * @param int $id ID of person to get
+ * @return array
+ */
+function swapi_get_person($id) {
+	return swapi_get("people/{$id}");
 }

@@ -29,7 +29,7 @@ function wst_shortcode_people($user_atts = [], $content = null, $tag = '') {
 
 	$output = "<hr />";
 
-	$res = swapi_get("https://swapi.dev/api/people/");
+	$res = swapi_get_people();
 	if (!$res['success']) {
 		return $output . "<em>{$res['message']}</em>";
 	}
@@ -78,7 +78,7 @@ function wst_shortcode_person($user_atts = [], $content = null, $tag = '') {
 		return $output .= "<em>Please specify the ID attribute in shortcode starwars-person.</em>";
 	}
 
-	$res = swapi_get("https://swapi.dev/api/people/{$atts['id']}");
+	$res = swapi_get_person($atts['id']);
 	if (!$res['success']) {
 		return $output . "<em>{$res['message']}</em>";
 	}
