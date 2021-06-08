@@ -29,23 +29,24 @@ function wst_shortcode_people($user_atts = [], $content = null, $tag = '') {
 
 	$output = "<hr />";
 
-	$res = swapi_get_people();
-	if (!$res['success']) {
-		return $output . "<em>{$res['message']}</em>";
+	$people = swapi_get_people();
+	if (!$people) {
+		return $output . "<em>Error retrieving people from The StarWars API</em>";
 	}
 
 	$title = "People in the StarWars Universe";
 	$output .= sprintf("<h2>%s</h2>", $title);
 
-	if (count($res['data']->results) > 0) {
+	if (count($people) > 0) {
 		$output .= "<ul>";
-		foreach ($res['data']->results as $person) {
+		foreach ($people as $person) {
 			$output .= sprintf('<li>%s (birthyear: %s)</li>', $person->name, $person->birth_year);
 		}
 		$output .= "</ul>";
 	}
 
-	$output .= "<em>There are a total of {$res['data']->count} people in the StarWars universe.</em>";
+	$people_count = count($people);
+	$output .= "<em>There are a total of {$people_count} people in the StarWars universe.</em>";
 
 	$output .= "<hr />";
 

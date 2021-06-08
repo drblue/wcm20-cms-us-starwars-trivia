@@ -7,7 +7,7 @@
  * Get data from a JSON API
  *
  * @param string $url
- * @return array
+ * @return boolean|object
  */
 function swapi_get_url($url) {
 	$response = wp_remote_get($url, [
@@ -15,19 +15,13 @@ function swapi_get_url($url) {
 	]);
 
 	if (wp_remote_retrieve_response_code($response) !== 200) {
-		return [
-			'success' => false,
-			'message' => 'Error in StarWars API request, response code was not 200!'
-		];
+		return false;
 	}
 
 	$body = wp_remote_retrieve_body($response);
 	$data = json_decode($body);
 
-	return [
-		'success' => true,
-		'data' => $data,
-	];
+	return $data;
 }
 
 
@@ -39,21 +33,38 @@ function swapi_get_url($url) {
  */
 function swapi_get($endpoint) {
 	// Get transient for this endpoint
-	$res = get_transient("swapi_{$endpoint}");
+	$items = get_transient("swapi_{$endpoint}");
 
 	// Did (valid) cached data exist for this endpoint?
-	if ($res === false) {
+	if ($items === false) {
 		// Cached data didn't exist or had expired for the endpoint
-		$res = swapi_get_url("https://swapi.dev/api/{$endpoint}");
+		$items = [];
 
-		// Fake a slow api 😈
-		// sleep(5);
+		// Set URL to fetch
+		$url = "https://swapi.dev/api/{$endpoint}";
+
+		// Continue looping until there is no more data to get
+		while ($url !== null) {
+			// Get data
+			$data = swapi_get_url($url);
+
+			// Did we get data?
+			if (!$data) {
+				return false;
+			}
+
+			// Merge retrieved result with previously retrieved result
+			$items = array_merge($items, $data->results);
+
+			// Do we have more results to retrieve?
+			$url = $data->next;
+		}
 
 		// Store retrieved data in the cache for 4 hours
-		set_transient("swapi_{$endpoint}", $res, 4 * HOUR_IN_SECONDS);
+		set_transient("swapi_{$endpoint}", $items, 4 * HOUR_IN_SECONDS);
 	}
 
-	return $res;
+	return $items;
 }
 
 /**
