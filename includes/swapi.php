@@ -29,39 +29,53 @@ function swapi_get_url($url) {
  * Get (possibly cached) data from a SWAPI endpoint
  *
  * @param string $endpoint
+ * @param int $id optional id to retrieve
  * @return array
  */
-function swapi_get($endpoint) {
-	// Get transient for this endpoint
-	$items = get_transient("swapi_{$endpoint}");
+function swapi_get($endpoint, $id = null) {
+	$transient_key = $id ? "swapi_{$endpoint}_{$id}" : "swapi_{$endpoint}";
+
+	// Get cached data for this transient key
+	$items = get_transient($transient_key);
 
 	// Did (valid) cached data exist for this endpoint?
 	if ($items === false) {
-		// Cached data didn't exist or had expired for the endpoint
-		$items = [];
-
-		// Set URL to fetch
-		$url = "https://swapi.dev/api/{$endpoint}";
-
-		// Continue looping until there is no more data to get
-		while ($url !== null) {
-			// Get data
-			$data = swapi_get_url($url);
-
-			// Did we get data?
+		if ($id) {
+			// get result directly
+			$data = swapi_get_url("https://swapi.dev/api/{$endpoint}/{$id}");
 			if (!$data) {
 				return false;
 			}
 
-			// Merge retrieved result with previously retrieved result
-			$items = array_merge($items, $data->results);
+			$items = $data;
 
-			// Do we have more results to retrieve?
-			$url = $data->next;
+		} else {
+			// Cached data didn't exist or had expired for the endpoint
+			$items = [];
+
+			// Set URL to fetch
+			$url = "https://swapi.dev/api/{$endpoint}";
+
+			// Continue looping until there is no more data to get
+			while ($url !== null) {
+				// Get data
+				$data = swapi_get_url($url);
+
+				// Did we get data?
+				if (!$data) {
+					return false;
+				}
+
+				// Merge retrieved result with previously retrieved result
+				$items = array_merge($items, $data->results);
+
+				// Do we have more results to retrieve?
+				$url = $data->next;
+			}
 		}
 
 		// Store retrieved data in the cache for 4 hours
-		set_transient("swapi_{$endpoint}", $items, 4 * HOUR_IN_SECONDS);
+		set_transient($transient_key, $items, 4 * HOUR_IN_SECONDS);
 	}
 
 	return $items;
@@ -89,8 +103,8 @@ function swapi_get_people() {
  * Get person
  *
  * @param int $id ID of person to get
- * @return array
+ * @return object
  */
 function swapi_get_person($id) {
-	return swapi_get("people/{$id}");
+	return swapi_get("people", $id);
 }

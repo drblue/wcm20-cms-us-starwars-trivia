@@ -79,19 +79,19 @@ function wst_shortcode_person($user_atts = [], $content = null, $tag = '') {
 		return $output .= "<em>Please specify the ID attribute in shortcode starwars-person.</em>";
 	}
 
-	$res = swapi_get_person($atts['id']);
-	if (!$res['success']) {
-		return $output . "<em>{$res['message']}</em>";
+	$person = swapi_get_person($atts['id']);
+	if (!$person) {
+		return $output . "<em>Error retrieving person from The StarWars API.</em>";
 	}
 
-	$title = $res['data']->name;
+	$title = $person->name;
 	$output .= sprintf("<h2>%s</h2>", $title);
 
 	$output .= "<dl>";
-	$output .= sprintf('<dt>%s</dt><dd>%s cm</dd>', 'Height', $res['data']->height);
-	$output .= sprintf('<dt>%s</dt><dd>%s kg</dd>', 'Mass', $res['data']->mass);
-	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Birthyear', $res['data']->birth_year);
-	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Films', count($res['data']->films));
+	$output .= sprintf('<dt>%s</dt><dd>%s cm</dd>', 'Height', $person->height);
+	$output .= sprintf('<dt>%s</dt><dd>%s kg</dd>', 'Mass', $person->mass);
+	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Birthyear', $person->birth_year);
+	$output .= sprintf('<dt>%s</dt><dd>%s</dd>', 'Films', count($person->films));
 	$output .= "</dl>";
 
 	$output .= "<hr />";
