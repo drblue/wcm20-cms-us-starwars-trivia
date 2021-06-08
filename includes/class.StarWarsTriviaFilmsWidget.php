@@ -32,14 +32,14 @@ class StarWarsTriviaFilmsWidget extends WP_Widget {
 			echo $args['before_title'] . $instance['title'] . $args['after_title'];
 		}
 
-		$res = swapi_get_films();
-		if (!$res['success']) {
-			echo "<p><em>{$res['message']}</em></p>";
+		$films = swapi_get_films();
+		if (!$films) {
+			echo "<p><em>Error retrieving films from The StarWars API</em></p>";
 			return;
 		}
 
 		echo "<ul>";
-		foreach ($res['data']->results as $film) {
+		foreach ($films as $film) {
 			?>
 				<li>
 					<h5><?php echo $film->title; ?></h5>
